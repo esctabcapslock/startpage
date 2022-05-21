@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시작페이지</title>
+    <script src="../module/vec.js"></script>
+    <script src="../module/bubble.js"></script>
+    <script src="../module/random.js"></script>
+    <script src="../module/border.js"></script>
+    <script src="./setting.js"></script>
+    <link rel="stylesheet" type="text/css" href="./main.css">
+    <script>
+        const {tablehtml, sites, subdata} = setting
+    </script>
+
+</head>
+<body><header>
+    <svg id="display" xmlns="http://www.w3.org/2000/svg">
+        
+    </svg>
+</header>
+<main>
+    <div>
+            <div>
+               
+                <table class="timetable" id="mytimetable"></table>
+                <script>document.getElementById('mytimetable').innerHTML = tablehtml</script>
+            </div>
+        </div>
+
+    </main>
+    <footer>
+        <strong>2022 ⓒ esctabcapslock</strong> all right reserved 
+    </footer>
+    <!-- 링크 관련 -->
+    <!-- 랜덤함수 관련 -->
+    <script>
+    </script>
+    <script>
+
+        
+        const xmlns = "http://www.w3.org/2000/svg"
+        const svgheight = 200
+        const circleradius = 30
+        const svg = document.querySelector('header svg')
+
+        const color_list = ['#ff68ff','#ff62a0','#ffb05f','#fff765','#bcffaa']
+        
+
+        function setSVGsize(){
+            svg.setAttribute('width',svgwidtth()+'px')
+            svg.setAttribute('height',svgheight+'px')
+        }
+        function svgwidtth(){
+            // return screen.availWidth;
+            const footer = document.getElementsByTagName('footer')[0]
+            return footer.clientWidth
+            }
+        setSVGsize()
+
+        function map(v,a,b,x,y){
+            return (v-a)*(b-a)*(y-x)+x
+        }
+        const vmax = 10
+
+        
+        const bubblelist = []
+        for (const site in sites){
+            const pos = new Vec((svgwidtth()-circleradius*2)*Math.random()+circleradius, (svgheight-circleradius*2)*Math.random()+circleradius)
+            const vel = new Vec(map(Math.random(),0,1,-vmax,vmax),map(Math.random(),0,1,-vmax,vmax))
+            bubblelist.push(new Bubble(site, sites[site], pos,vel));
+        }
+
+
+        const mousepos = new Vec(0,0);
+        const mousevel = new Vec(0,0);
+        svg.addEventListener('mousemove',e=>{
+            // console.log(e)
+            mousepos.x = e.clientX
+            mousepos.y = e.clientY
+            mousevel.x = e.movementX
+            mousevel.y = e.movementY
+        })
+        document.addEventListener('mouseup',e=>bubblelist.map(bubble=>bubble.mouseup()))
+
+        function tick (){
+            bubblelist.forEach(bubble=>{
+                for(const bubble2 of bubblelist) if(bubble!==bubble2) bubble.bouncebubble(bubble2)
+                
+                if(bubble.mouseattractionflag) bubble.mouseattraction()
+                else bubble.tic()
+                
+                bubble.bounce()
+                bubble.setpos()
+            })
+        }
+        (function loop(){
+            tick()
+            requestAnimationFrame(loop)
+        })();
+
+        // ,1000/60)
+        // console.log(bubblelist);
+    </script>
+    <!-- 시간표 관련 -->
+    <script>
+        for(let v of document.getElementsByClassName('course-div')){
+            const sbjname = v.getElementsByTagName('p')[0].innerText
+            const room = v.getElementsByTagName('p')[1].innerText;
+            const [prop,url] = subdata[sbjname]
+            // console.log(sbjname,prop,url, room)
+            v.innerHTML = `<a href="${url}">
+                <p>${sbjname}</p>
+                <p>${prop}</p>
+                <p>${room}</p>
+                </a>`
+        }
+    </script>
+</body>
+</html>
