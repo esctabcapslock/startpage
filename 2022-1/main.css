@@ -115,9 +115,20 @@ header {
     position: relative;
     display: block;
     float: top;
+    width: 100vw;
     height: 200px;
 }
 
+#svgwrap{
+    position:fixed;
+    height: 100vh;
+    width: 100vw;
+    z-index: 10;
+}
+
+
+
+/* 
 header>ul {
     display: block;
     position: absolute;
@@ -127,9 +138,10 @@ header>ul>li {
     display: block;
     position: relative;
     float: left;
-}
+} */
 
 main {
+    /* top: 200px; */
     float: top;
     position: relative;
     display: block;
@@ -143,4 +155,6 @@ footer {
 .timetable {
     margin: 0 auto;
     transform: translateX(-15px);
+    position: relative;
+    z-index: 11;
 }

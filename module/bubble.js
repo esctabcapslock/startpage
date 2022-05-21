@@ -1,9 +1,11 @@
 class Bubble{
-    constructor(name, href, pos, vel){
+    constructor(name, href, pos, vel, radius){
         this.name = name
         this.href = href
-        this.pos = pos//new Vec((svgwidtth()-circleradius*2)*Math.random()+circleradius, (svgheight-circleradius*2)*Math.random()+circleradius)
+        this.radius = radius
+        this.pos = pos//new Vec((svgwidtth()-this.radius*2)*Math.random()+this.radius, (svgheight-this.radius*2)*Math.random()+this.radius)
         this.vel = vel//new Vec(map(Math.random(),0,1,-vmax,vmax),map(Math.random(),0,1,-vmax,vmax))
+        this.color = color_list[(rand()*color_list.length)|0]
         svg.append(this.create())
 
         this.mouseattractionflag = false
@@ -18,10 +20,10 @@ class Bubble{
         this.text = text
 
         const circle = document.createElementNS(xmlns,'circle')
-        circle.setAttribute('r',circleradius)
+        circle.setAttribute('r',this.radius)
         circle.setAttribute('cx',20+300*Math.random())
         circle.setAttribute('cy',20)
-        circle.setAttribute('style',`fill: ${color_list[(rand()*color_list.length)|0]}; stroke: black; stroke-width: 1px;`)
+        circle.setAttribute('style',`fill: ${this.color}; stroke: black; stroke-width: 1px;`)
         this.ele.append(circle)  
         this.ele.append(text)
         this.circle = circle 
@@ -56,19 +58,19 @@ class Bubble{
     }
 
     bounce(){
-        if(this.pos.x < circleradius){
-            this.pos.x = circleradius
+        if(this.pos.x < this.radius){
+            this.pos.x = this.radius
             this.vel.x *= -1
         }
-        else if(svgwidtth()-this.pos.x < circleradius ){
-            this.pos.x = svgwidtth()-circleradius
+        else if(svgwidtth()-this.pos.x < this.radius ){
+            this.pos.x = svgwidtth()-this.radius
             this.vel.x *= -1
         }
-        if(this.pos.y < circleradius){
-            this.pos.y = circleradius
+        if(this.pos.y < this.radius){
+            this.pos.y = this.radius
             this.vel.y *= -1
-        }else if( this.pos.y > svgheight-circleradius ){
-            this.pos.y = svgheight-circleradius
+        }else if( this.pos.y > svgheight()-this.radius ){
+            this.pos.y = svgheight()-this.radius
             this.vel.y *= -1
         }
     }
@@ -78,7 +80,7 @@ class Bubble{
         const propconst = 100
         const dir =  Vec.prototype.sub(this.pos, bubble.pos);
         const size = dir.mag()
-        if(size==0 || size>circleradius*2) return;
+        if(size==0 || size>this.radius*2) return;
         
         dir.normalize()
         // console.log(this.pos, bubble.pos, Vec.prototype.sub(this.pos, bubble.pos))
@@ -103,5 +105,12 @@ class Bubble{
     tic(){
         
         this.pos.add(Vec.prototype.mult(0.2,this.vel))
+    }
+
+    colordo(){
+        this.circle.style.fill = `rgb(255,0,0)`
+        setTimeout(() => {
+            this.circle.style.fill = this.color
+        }, 1000*0.01);
     }
 }

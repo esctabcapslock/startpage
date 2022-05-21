@@ -86,18 +86,30 @@ class Vec{
     cross2D(v){
         if(v.size != 2) throw(`길이가 2가 아님`)
         if (!(v instanceof Vec)) throw(`v가 벡터가 아니고 ${v}`)
-        return this.x * v.y - this.y - v.x
+        return this.x * v.y - this.y*v.x
     }
+
 
     rotate2D(t){
         if(this.size != 2) throw(`길이가 2가 아님`)
-        const [c,s] = [Math.cos(t), Math.sin(t)]
-        this.x = this.x*c - this.y*s
-        this.y = this.x*s + this.y*c
+        const [c,s] = [Math.cos(t), Math.sin(t)];
+        const [x, y] = [this.x*c - this.y*s, this.x*s + this.y*c]; 
+        this.x = x
+        this.y = y
         return this
     }
 
+    rotate2D_90deg(){
+        if(this.size != 2) throw(`길이가 2가 아님`)
+        const [c,s] = [0,1]
+        const [x, y] = [this.x*c - this.y*s, this.x*s + this.y*c]; 
+        this.x = x
+        this.y = y
+        return this
+    }
+
+
     toString(){
-        return this.__val.toString()
+        return JSON.stringify(this.__val)
     }
 }

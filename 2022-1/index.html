@@ -9,6 +9,7 @@
     <script src="../module/random.js"></script>
     <script src="../module/border.js"></script>
     <script src="./setting.js"></script>
+    <script src="../module/rectangle.js"></script>
     <link rel="stylesheet" type="text/css" href="./main.css">
     <script>
         const {tablehtml, sites, subdata} = setting
@@ -16,8 +17,7 @@
 
 </head>
 <body><header>
-    <svg id="display" xmlns="http://www.w3.org/2000/svg">
-        
+    <div id="svgwrap"><svg id="display" xmlns="http://www.w3.org/2000/svg"></svg></div>
     </svg>
 </header>
 <main>
@@ -36,12 +36,13 @@
     <!-- 링크 관련 -->
     <!-- 랜덤함수 관련 -->
     <script>
+        function mytop(v){return {offsetTop:v.offsetTop, scrollTop:v.scrollTop, clientTop:v.clientTop}}
     </script>
     <script>
 
         
         const xmlns = "http://www.w3.org/2000/svg"
-        const svgheight = 200
+        // const svgheight = 200
         const circleradius = 30
         const svg = document.querySelector('header svg')
 
@@ -50,13 +51,18 @@
 
         function setSVGsize(){
             svg.setAttribute('width',svgwidtth()+'px')
-            svg.setAttribute('height',svgheight+'px')
+            svg.setAttribute('height',svgheight()+'px')
         }
         function svgwidtth(){
             // return screen.availWidth;
             const footer = document.getElementsByTagName('footer')[0]
             return footer.clientWidth
-            }
+        }
+
+        function svgheight(){
+            return document.getElementById('svgwrap').clientHeight//document.body.clientHeight + 200
+        }
+
         setSVGsize()
 
         function map(v,a,b,x,y){
@@ -64,13 +70,35 @@
         }
         const vmax = 10
 
+        const borderlist = []
+        // borderlist.push(new Border([
+        //     new Vec(100,100),
+        //     new Vec(100,200),
+        //     new Vec(200,200),
+        //     new Vec(200,100),
+        // ]))
+
+        
+
+        const tableblock = new Border(update_table_border())
+        borderlist.push(tableblock)
+        // svg.append(drow_rectangle(100,100,100,100))
         
         const bubblelist = []
         for (const site in sites){
-            const pos = new Vec((svgwidtth()-circleradius*2)*Math.random()+circleradius, (svgheight-circleradius*2)*Math.random()+circleradius)
+            const heughtmax = 200
+            const getpos = ()=>new Vec(
+                (svgwidtth()-circleradius*2)*Math.random()+circleradius, 
+                (heughtmax-circleradius*2)*Math.random()+circleradius
+            )
+
             const vel = new Vec(map(Math.random(),0,1,-vmax,vmax),map(Math.random(),0,1,-vmax,vmax))
-            bubblelist.push(new Bubble(site, sites[site], pos,vel));
+            let pos = getpos()
+            while(borderlist.some(b=>b.check_ccollision_circle(pos,circleradius)!==false)) pos = getpos(); //겹치면 다시 뽑기
+            bubblelist.push(new Bubble(site, sites[site], pos,vel, circleradius));
         }
+
+        
 
 
         const mousepos = new Vec(0,0);
@@ -83,22 +111,64 @@
             mousevel.y = e.movementY
         })
         document.addEventListener('mouseup',e=>bubblelist.map(bubble=>bubble.mouseup()))
+        document.addEventListener('keydown',e=>{
+            if(e.keyCode==83){
+                stopflag = !stopflag
+                if(!stopflag) loop()
+            }
+        })
+
+
+        let stopflag = false;
+
 
         function tick (){
+            tableblock.set_poslist(update_table_border())
             bubblelist.forEach(bubble=>{
                 for(const bubble2 of bubblelist) if(bubble!==bubble2) bubble.bouncebubble(bubble2)
                 
                 if(bubble.mouseattractionflag) bubble.mouseattraction()
                 else bubble.tic()
                 
+                for(const border of borderlist){
+                    const tmp = border.check_ccollision_circle(bubble.pos,bubble.radius)
+                    if(tmp instanceof Vec){
+                        bubble.colordo()
+                        bubble.applyforce(tmp)
+                    }
+                }
+
                 bubble.bounce()
                 bubble.setpos()
             })
         }
-        (function loop(){
+        function loop(){
             tick()
-            requestAnimationFrame(loop)
-        })();
+            if(!stopflag) requestAnimationFrame(loop)
+        };
+        loop()
+
+
+        //상자 구하기
+        function get_table_size(){
+            const top = Math.max(200-document.documentElement.scrollTop, 0)
+            const mytimetable = document.getElementById('mytimetable')
+            const left = mytimetable.offsetLeft
+            const height = mytimetable.clientHeight
+            const width = mytimetable.clientWidth
+            // console.log({top,left,height,width})
+            return {top,left,height,width}
+        }
+
+        function update_table_border(){
+            const {top,left,height,width} = get_table_size()
+            return [
+                new Vec(left,top),
+                new Vec(left+width,top),
+                new Vec(left+width,top+height),
+                new Vec(left,top+height),
+            ]
+        }
 
         // ,1000/60)
         // console.log(bubblelist);
