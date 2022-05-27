@@ -112,9 +112,13 @@
         })
         document.addEventListener('mouseup',e=>bubblelist.map(bubble=>bubble.mouseup()))
         document.addEventListener('keydown',e=>{
+            console.log(e.keyCode)
             if(e.keyCode==83){
                 stopflag = !stopflag
                 if(!stopflag) loop()
+            }
+            else if(e.keyCode==66){
+                location = '../bookmark.html'
             }
         })
 
